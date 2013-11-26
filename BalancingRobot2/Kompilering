@@ -1,0 +1,11 @@
+
+
+/**
+* Kompilera programmet först och ladda sedan upp det på NXT:n enligt instruktionerna
+* (Använd cmd)
+**/
+
+nxjc HelloWorld.java
+
+
+nxj -r -o HelloWorld.nxj HelloWorld
