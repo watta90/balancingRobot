@@ -8,14 +8,16 @@ import lejos.nxt.Sound;
 
 public class BluetoothReceiver extends Thread {
 	DataInputStream dataIn;
-	PD sf;
+	PD pd;
+	Statefeedback sf;
 	ReferenceGenerator refGen;
 	public static int CMD_SET_PARAMETERS = 1;
 	public static int CMD_SET_DIRECTION = 2;
 
-	public BluetoothReceiver(DataInputStream dataIn, PD sf,
-			ReferenceGenerator refGen) {
+	public BluetoothReceiver(DataInputStream dataIn, PD pd,
+			ReferenceGenerator refGen, Statefeedback sf) {
 		this.dataIn = dataIn;
+		this.pd = pd;
 		this.sf = sf;
 		this.refGen = refGen;
 	}
@@ -30,7 +32,8 @@ public class BluetoothReceiver extends Thread {
 					float[] values = new float[2];
 					values[0] = dataIn.readFloat();
 					values[1] = dataIn.readFloat();
-					sf.setParameters(values);
+					/*pd.setParameters(values);*/
+					sf.setParameter(values[0]);
 					break;
 				case 2:
 					int direction = dataIn.readInt();

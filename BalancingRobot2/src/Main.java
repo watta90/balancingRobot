@@ -18,15 +18,16 @@ public class Main {
 		 DataInputStream dataIn = connection.openDataInputStream();
 		 
 		 ReferenceGenerator refGen = new ReferenceGenerator();
-		 PD sf = new PD();
+		 PD pd = new PD();
+		 Statefeedback sf = new Statefeedback();
 		 BluetoothMonitor blMon = new BluetoothMonitor();
 		 BluetoothSender blSender = new BluetoothSender(dataOut, blMon);
-		 BluetoothReceiver blReceiver = new BluetoothReceiver(dataIn, sf, refGen);
+		 BluetoothReceiver blReceiver = new BluetoothReceiver(dataIn, pd, refGen, sf);
 		 
 		
 		
 		 
-		 Regulator regul = new Regulator(blMon, sf, refGen);
+		 Regulator regul = new Regulator(blMon, pd, refGen, sf);
 		 ShutDown threadForShutDown = new ShutDown();
 		 blSender.start();
 		 blReceiver.start();
