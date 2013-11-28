@@ -31,6 +31,7 @@ public class Statefeedback {
 	public synchronized float calc(float vinkel, float vinkelhastighet) {
 		x1 = (float) ((vinkel/180)*Math.PI);
 		x2 = (float) ((vinkelhastighet/180)*Math.PI);
+		
 		u = -(l1 * x1 + l2 * x2)*k;
 
 		return u;

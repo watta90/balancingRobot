@@ -25,7 +25,7 @@ public class BluetoothReceiver extends Thread {
 				values[2] = dataIn.readInt();
 				//val = dataIn.readInt();
 				blMon.newReceivedData(values);
-				System.out.println(values[0] + ", " + values[1] + ", " + values[2]);
+				//System.out.println(values[0] + ", " + values[1] + ", " + values[2]);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

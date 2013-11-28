@@ -17,9 +17,11 @@ public class Regulator extends Thread{
 	float z = 0;
 	float oldY = 0;
 	float angle = 0;
-	int gyroValue;
+	//int gyroValue;
+	float gyroValue;
 	float gyroRate = 0;
 	float x_acc_rate = 0;
+	int sampTime;
 	long t;
 	
 	public Regulator(BluetoothMonitor blMon, PD pd, ReferenceGenerator refGen, Statefeedback sf){
@@ -30,6 +32,7 @@ public class Regulator extends Thread{
 		gyroSensor = new GyroSensor(SensorPort.S1);
 		accelerometer = new AccelHTSensor(SensorPort.S2);
 		this.setPriority(Thread.MAX_PRIORITY);
+		sampTime = 0;
 	}
 	
 	
@@ -46,17 +49,19 @@ public class Regulator extends Thread{
 		calibrate();
 		t = System.currentTimeMillis();
 		while(!interrupted()){
-			gyroValue = gyroSensor.readValue();
+			//gyroValue = gyroSensor.readValue();
+			gyroValue = gyroSensor.getAngularVelocity();
 			int x_acc = accelerometer.getXAccel();
-			x_acc_rate = (float) ((float)(x_acc - 0) * (180/Math.PI));
+
+			x_acc_rate = (((float)x_acc) * ((float)0.491));
 			//y = lowPass(y);
-			gyroRate = (float) ((gyroValue - gyroOffset) * 1);
+			gyroRate = gyroValue;//(float) ((gyroValue - gyroOffset) * 1);
 			
 			//angle += gyroRate * ((float)h/1000);
 			//float tempAG = angle + gyroValue *  ((float)h/1000);
-			angle = (float) ((0.9375)*(angle + gyroRate *  ((float)h/1000)) + (0.0625)*(x_acc_rate));
-			float tempAngle = (float) (angle*0.0077) ;
-			float u = sf.calc(tempAngle, gyroRate);//pd.calculateOutput(tempAngle, y);
+			angle = (float) ((0.9074)*(angle + (gyroRate *  (((float)h)/1000))) + (0.0926)*(x_acc_rate));
+			//float tempAngle = (float) (angle*0.0077) ;
+			float u = sf.calc(angle, gyroRate);//pd.calculateOutput(tempAngle, y);
 
 			if(u>720){
 				u = 720;
@@ -64,13 +69,17 @@ public class Regulator extends Thread{
 				u = -720; 
 			}
 			
-			float[] params = pd.getParams();
-			printOnNXT(tempAngle, gyroRate, u);
+			//float[] params = pd.getParams();
+			printOnNXT(angle, gyroRate, angle);
 			
 			controllMotor(u);
 			
+			if(sampTime>4){
+				blMon.sendData((int)angle, (int)refGen.getRef(), (int)u);
+				sampTime = 0;
+			}
+			sampTime++;
 			
-			blMon.sendData((int)tempAngle, (int)refGen.getRef(), (int)u);
 			
 			if(System.currentTimeMillis()-refGen.getLastUpdate()>1000){
 				refGen.setRef(ReferenceGenerator.StableAngel);
@@ -96,12 +105,15 @@ public class Regulator extends Thread{
 
 
 	private void calibrate() {
+		/*
 		int sum = 0;
 		int s = 200;
 		for(int i=0; i<s; i++){
 			sum += gyroSensor.readValue();
 		}
 		gyroOffset = sum/s;
+		*/
+		gyroSensor.recalibrateOffset();
 		
 	}
 
@@ -139,13 +151,13 @@ public class Regulator extends Thread{
 			u = u*-1;
 			Motor.A.setSpeed(u);
 			Motor.C.setSpeed(u);
-			Motor.A.backward();
-			Motor.C.backward();	
+			Motor.A.forward();
+			Motor.C.forward();	
 		} else {
 			Motor.A.setSpeed(u);
 			Motor.C.setSpeed(u);
-			Motor.A.forward();
-			Motor.C.forward();
+			Motor.A.backward();
+			Motor.C.backward();
 					
 		}
 		
