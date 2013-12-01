@@ -19,7 +19,7 @@ public class PD {
 	}
 	
 	public synchronized float calculateOutput(float angle, float angleVelocity){
-		float u = (kP*angle + (kD*kP*(angleVelocity - Regulator.gyroOffset)));
+		float u = (kP*angle + (kD*kP*(angleVelocity - 0)));
 		return u;
 		
 	}

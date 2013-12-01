@@ -26,11 +26,12 @@ public class Main {
 		 
 		
 		
-		 
+		 Sensor sensor = new Sensor(blMon, pd, refGen, sf);
 		 Regulator regul = new Regulator(blMon, pd, refGen, sf);
 		 ShutDown threadForShutDown = new ShutDown();
 		 blSender.start();
 		 blReceiver.start();
+		 sensor.start();
 		 regul.start();
 		 threadForShutDown.start();
 
