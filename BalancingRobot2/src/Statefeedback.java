@@ -71,7 +71,7 @@ public class Statefeedback {
 		notifyAll();
 	}
 
-	public void reset() {
+	public synchronized void reset() {
 		x1=0;
 		x2=0;
 		
