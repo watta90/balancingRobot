@@ -7,25 +7,42 @@ import lejos.nxt.addon.AccelHTSensor;
 public class Regulator extends Thread{
 	private BluetoothMonitor blMon;
 	
+	private GyroSensor gyroSensor;
+	private AccelHTSensor accelerometer;
+	
 	private PD pd;
 	private Statefeedback sf;
+	private PID pid;
 	private ReferenceGenerator refGen;
 	
-	public final static int h = 50;
+	public final static int h = 10;
+	
+	private float angle = 0;
+	private float gyroValue;
+	private float x_acc_rate = 0;
+	
+	private int x_acc_offset=0;
+	private float x_acc_scale=(float) 90/200;//90/220
+	private int gyro_offset=0; //Not needed
+	private float gyro_scale=(float) 1;
 	
 	float T= (float) 0.001;
 	float z = 0;
-	float oldY = 0;
+	//float oldY = 0;
 	int graphTime;
 	long t;
 	
-	public Regulator(BluetoothMonitor blMon, PD pd, ReferenceGenerator refGen, Statefeedback sf){
+	public Regulator(BluetoothMonitor blMon, PD pd, ReferenceGenerator refGen, Statefeedback sf, PID pid){
 		this.blMon = blMon;
 		this.pd = pd;
 		this.refGen = refGen;
 		this.sf = sf;
+		this.pid = pid;
+		gyroSensor = new GyroSensor(SensorPort.S1);
+		accelerometer = new AccelHTSensor(SensorPort.S2);
 		this.setPriority(Thread.MAX_PRIORITY);
 		graphTime = 0;
+		
 	}
 	
 	
@@ -39,19 +56,31 @@ public class Regulator extends Thread{
 //	}
 	
 	public void run(){
-		t = System.currentTimeMillis();
+		calibrate();
+		t = System.currentTimeMillis();  
 		while(!interrupted()){
+			gyroValue = gyroSensor.getAngularVelocity(); 
+			x_acc_rate = accelerometer.getXAccel();
 			
-			float []res = sf.calc();//pd.calculateOutput(tempAngle, y);
+			float x_accel=(float) (x_acc_rate-x_acc_offset)*x_acc_scale; //output is angle in radians.
+			float gyro=(float)(gyroValue-gyro_offset)*gyro_scale; //output is angularvel. in radians.
+			angle = (float) ((float) (0.98)*(angle+gyro*0.01)+(0.02)*(x_accel));
+			
+			
+			float u = (float) pid.calculateOutput(angle, refGen.getRef());
+			
+			/*float []res = pd.calculateOutput();
 			float u=res[0];
 			float angle=res[1];
-			float gyroRate=res[2];
+			float gyroRate=res[2];*/
 
 			controllMotor(u);
 			//float[] params = pd.getParams();
-			printOnNXT(angle, gyroRate, u);
+			printOnNXT(angle, gyro, u);
 			
-			if(graphTime>4){
+			pid.updateState(u);
+			
+			if(graphTime>20){
 				blMon.sendData((int)angle, (int)refGen.getRef(), (int)u);
 				graphTime = 0;
 			}
@@ -62,16 +91,16 @@ public class Regulator extends Thread{
 				refGen.setRef(ReferenceGenerator.StableAngel);
 			}
 			
-			if(pd.getStateParams()==PD.STATE_NEW || sf.getStateParams()==Statefeedback.STATE_NEW){
+			if(pid.getStateParams()==PID.STATE_NEW  || pd.getStateParams()==PD.STATE_NEW || sf.getStateParams()==Statefeedback.STATE_NEW){
 				reset();
 			} else {
-				oldY = gyroRate;
+				//oldY = gyroRate;
 				t = t + h;
 				long duration = t - System.currentTimeMillis();
-				while (duration > 0) {
+				if (duration > 0) {
 					try {
 						sleep(duration);
-						duration = t - System.currentTimeMillis();
+						//duration = t - System.currentTimeMillis();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -79,7 +108,6 @@ public class Regulator extends Thread{
 				
 			}
 			
-			//behöver vi spara undan nytt t?
 		}
 	}
 
@@ -90,7 +118,8 @@ public class Regulator extends Thread{
 		//gyroRate = 0;
 		//x_acc_rate = 0;
 		sf.reset();
-		
+		pid.reset();
+		pid.setStateParams(PID.STATE_OLD);
 		pd.setStateParams(PD.STATE_OLD);
 		sf.setStateParams(Statefeedback.STATE_OLD);
 		try {
@@ -118,16 +147,26 @@ public class Regulator extends Thread{
 			u = u*-1;
 			Motor.A.setSpeed(u);
 			Motor.C.setSpeed(u);
-			Motor.A.forward();
-			Motor.C.forward();	
+			Motor.A.backward();
+			Motor.C.backward();
 		} else {
 			Motor.A.setSpeed(u);
 			Motor.C.setSpeed(u);
-			Motor.A.backward();
-			Motor.C.backward();
+			Motor.A.forward();
+			Motor.C.forward();			
 					
 		}
 		
+	}
+	
+	private void calibrate() {
+		gyroSensor.recalibrateOffset();
+		int sum = 0;
+		int s = 400;
+		for(int i=0; i<s; i++){
+			sum += accelerometer.getXAccel();
+		}
+		x_acc_offset=sum/s;
 	}
 
 }

@@ -1,9 +1,14 @@
 
 public class PD {
+	   
 	public static int STATE_NEW = 1;
 	public static int STATE_OLD = 0;
-	private float kP = 50;
-	private float kD =  4;
+	private float kP = 16;
+	private float kD =  (float) 1.8;
+	private float kI = (float) 0.5;
+	private float angle = 0;
+	private float angleVelocity = 0;
+	private float prevError = 0;
 	private int stateParams = STATE_OLD;
 	
 	
@@ -18,9 +23,16 @@ public class PD {
 		notifyAll();
 	}
 	
-	public synchronized float calculateOutput(float angle, float angleVelocity){
-		float u = (kP*angle + (kD*kP*(angleVelocity - 0)));
-		return u;
+	public synchronized float[] calculateOutput(){
+		float error = 0-angleVelocity;
+		float u = (kP*(angle-0) + (angle-0)*kI +  (kD*(error-prevError)));
+		//prevError = error;
+		/*if(angle>5){
+			u = 720;
+		} else if(angle<-5){
+			u = -720;
+		}*/
+		return new float[]{u, angle, angleVelocity};
 		
 	}
 	
@@ -33,8 +45,15 @@ public class PD {
 		notifyAll();
 	}
 
-	public float[] getParams() {
+	public synchronized float[] getParams() {
 		return new float[]{kP, kD};
+	}
+
+	public synchronized void updateState(float angle, float f) {
+		this.angle = angle;
+		this.angleVelocity = f;
+		notifyAll();
+		
 	}
 
 }

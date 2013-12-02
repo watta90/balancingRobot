@@ -7,6 +7,7 @@ public class Sensor extends Thread{
 	private GyroSensor gyroSensor;
 	private AccelHTSensor accelerometer;
 	private Statefeedback sf;
+	private PD pd;
 	public final static int h = 10; //period T=0.01s
 	
 	private float angle = 0;
@@ -22,6 +23,7 @@ public class Sensor extends Thread{
 	
 	public Sensor(BluetoothMonitor blMon, PD pd, ReferenceGenerator refGen, Statefeedback sf){
 		this.sf = sf;
+		this.pd = pd;
 		gyroSensor = new GyroSensor(SensorPort.S1);
 		accelerometer = new AccelHTSensor(SensorPort.S2);
 		this.setPriority(Thread.MAX_PRIORITY);
@@ -38,18 +40,18 @@ public class Sensor extends Thread{
 			float gyro=(float)(gyroValue-gyro_offset)*gyro_scale; //output is angularvel. in radians.
 			angle = (float) ((float) (0.98)*(angle+gyro*0.01)+(0.02)*(x_accel));
 			
-			sf.updateState(angle, gyro); 
+			//sf.updateState(angle, (float)(gyro*0.98)); 
+			pd.updateState(angle, (float)(gyro*0.98));
 			
 			t = t + h;
 			long duration = t - System.currentTimeMillis();
-			while (duration > 0) {
+			if (duration > 0) {
 				try {
 					sleep(duration);
-					duration = t - System.currentTimeMillis();
+					//duration = t - System.currentTimeMillis();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				//t = System.currentTimeMillis();// Ska vi ha den här
 			}
 		}
 	}

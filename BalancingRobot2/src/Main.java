@@ -20,14 +20,15 @@ public class Main {
 		 ReferenceGenerator refGen = new ReferenceGenerator();
 		 PD pd = new PD();
 		 Statefeedback sf = new Statefeedback();
+		 PID pid = new PID();
 		 BluetoothMonitor blMon = new BluetoothMonitor();
 		 BluetoothSender blSender = new BluetoothSender(dataOut, blMon);
-		 BluetoothReceiver blReceiver = new BluetoothReceiver(dataIn, pd, refGen, sf);
+		 BluetoothReceiver blReceiver = new BluetoothReceiver(dataIn, pd, refGen, sf, pid);
 		 
 		
 		
 		 Sensor sensor = new Sensor(blMon, pd, refGen, sf);
-		 Regulator regul = new Regulator(blMon, pd, refGen, sf);
+		 Regulator regul = new Regulator(blMon, pd, refGen, sf, pid);
 		 ShutDown threadForShutDown = new ShutDown();
 		 blSender.start();
 		 blReceiver.start();

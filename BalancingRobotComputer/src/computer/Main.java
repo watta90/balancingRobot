@@ -17,8 +17,10 @@ public class Main {
 		BluetoothSender blSender;
 		BluetoothMonitor blMon = new BluetoothMonitor();
 		Opcom opcom = new Opcom();
-		GUI gui = new GUI("Balancing Robot", blMon);
-		gui.initializeGUI();
+		//GUI gui = new GUI("Balancing Robot", blMon);
+		PIDParameters par = new PIDParameters();
+		PIDGUI gui = new PIDGUI(blMon, par, "Balancing Robot");
+		//gui.initializeGUI();
 		opcom.initializeGUI();
 		Controller controller = new Controller(opcom, blMon);
 		opcom.start();

@@ -10,11 +10,11 @@ public class Statefeedback {
 	float b1, b2;
 	float c1, c2;
 	float u;
-	float k=50;
+	float k=1;
 
 	public Statefeedback() {
-		this.l1 = (float) 102.7913; // 5.0319;
-		this.l2 = (float) 2.3452; //0.4837;
+		this.l1 = (float)102; //102.7913; // 5.0319;102
+		this.l2 = (float)20;// 2.3452; //0.4837;
 		this.x1 = 0;
 		this.x2 = 0; // h=0.05
 		this.a11 = 0;
@@ -31,8 +31,14 @@ public class Statefeedback {
 	public synchronized float [] calc() {
 		//x1 = vinkel;//(float) ((vinkel/180)*Math.PI);
 		//x2 = vinkelhastighet;//(float) ((vinkelhastighet/180)*Math.PI);
-		
+		float tempX1 = (float) (x1*0.0175);
+		float tempX2 = (float) (x2*0.0175);
 		u = -(l1 * x1 + l2 * x2)*k;
+		if(x1>30){
+			u = -720;
+		} else if(x1<-30){
+			u = 720;
+		}
 		if(u>720){
 			u = 720;
 		} else if(u<-720){
@@ -50,8 +56,9 @@ public class Statefeedback {
 		this.x1=angle;
 		this.x2=vel;
 	}
-	public synchronized void setParameter(float value) {
-		this.k = value;
+	public synchronized void setParameter(float value, float l2) {
+		this.l1 = value;
+		this.l2 = l2;
 		stateParams = STATE_NEW;
 		notifyAll();
 	}
