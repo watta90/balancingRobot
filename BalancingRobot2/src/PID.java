@@ -23,10 +23,10 @@ public class PID {
 		p.Beta = 1.0;
 		p.H = 0.01;
 		p.integratorOn = true;
-		p.K = -0.1;
-		p.Ti = 0.0;
-		p.Tr = 1.0;
-		p.Td = 1.0;
+		p.K = 4;
+		p.Ti = 0;
+		p.Tr = 0;
+		p.Td = 0.2;
 		p.N = 10;
 		setParameters(p);
 
@@ -40,20 +40,20 @@ public class PID {
 
 	}
 
-	public synchronized double calculateOutput(double y, double yref) {
+	public synchronized double[] calculateOutput(double y, double yref, float gyro) {
 		yk = y;
 		D = ((p.Td) / (p.Td + p.N * p.H)) * D
 				- ((p.K * p.Td * p.N) / (p.Td + p.N * p.H)) * (yk - y_k);
 		e = yref - y;
-		P = p.K * (p.Beta * yref - y);
+		P = p.K * (1 * yref - y);
 		v = P + I + D;
-		return v;
+		return new double[]{v, P, D};
 	}
 
 	// Updates the controller state.
 	// Should use tracking-based anti-windup
 	public synchronized void updateState(double u) {
-		if (p.integratorOn) {
+		if (p.integratorOn && p.Ti!=0) {
 			I = I + (p.K * p.H / p.Ti) * e + (p.H / p.Tr) * (u - v);
 		} else {
 			I = 0.0;
@@ -100,4 +100,5 @@ public class PID {
 		stateParams = state;
 		notifyAll();
 	}
+
 }

@@ -37,7 +37,7 @@ public class Opcom {
     // Declaration of panels.
     private BoxPanel plotterPanel;
 
-    private double range = 10.0; // Range of time axis
+    private double range = 2.0; // Range of time axis
     private int divTicks = 5;    // Number of ticks on time axis
     private int divGrid = 5;     // Number of grids on time axis
 
@@ -69,12 +69,12 @@ public class Opcom {
 		  // Create a panel for the two plotters.
 		  plotterPanel = new BoxPanel(BoxPanel.VERTICAL);
 		  // Create plot components and axes, add to plotterPanel.
-		  measurementPlotter.setYAxis(200, -90, 4, 4);
+		  measurementPlotter.setYAxis(200, -100, 2, 2);
 		  measurementPlotter.setXAxis(range, divTicks, divGrid);
 		  measurementPlotter.setTitle("Angle (ref and real)");
 		  plotterPanel.add(measurementPlotter);
 		  plotterPanel.addFixed(10);
-		  controlPlotter.setYAxis(1600, -800, 4, 4);
+		  controlPlotter.setYAxis(200, -100, 2, 2);
 		  controlPlotter.setXAxis(range, divTicks, divGrid);
 		  controlPlotter.setTitle("Control (u)");
 		  plotterPanel.add(controlPlotter);
