@@ -40,7 +40,7 @@ public class PID {
 
 	}
 
-	public synchronized double[] calculateOutput(double y, double yref, float gyro) {
+	public synchronized double[] calculateOutput(double y, double yref, double gyro) {
 		yk = y;
 		D = ((p.Td) / (p.Td + p.N * p.H)) * D
 				- ((p.K * p.Td * p.N) / (p.Td + p.N * p.H)) * (yk - y_k);

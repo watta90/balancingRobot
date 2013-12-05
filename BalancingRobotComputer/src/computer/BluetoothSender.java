@@ -22,15 +22,15 @@ public class BluetoothSender extends Thread {
 			try {
 				Sendobject so = blMon.getSendData();
 				if(so.getCMD()==Sendobject.CMD_SET_PARAMETERS){
-					float[] values = (float[]) so.getData();
+					double[] values = (double[]) so.getData();
 					dataOut.writeInt(Sendobject.CMD_SET_PARAMETERS);
-					dataOut.writeFloat(values[0]);
-					dataOut.writeFloat(values[1]);
-					dataOut.writeFloat(values[2]);
-					dataOut.writeFloat(values[3]);
-					dataOut.writeFloat(values[4]);
-					dataOut.writeFloat(values[5]);
-					dataOut.writeFloat(values[6]);
+					dataOut.writeDouble(values[0]);
+					dataOut.writeDouble(values[1]);
+					dataOut.writeDouble(values[2]);
+					dataOut.writeDouble(values[3]);
+					dataOut.writeDouble(values[4]);
+					dataOut.writeDouble(values[5]);
+					dataOut.writeDouble(values[6]);
 					System.out.println("Send data to NXT: " + so.getCMD() + ", " + values[0] + ", " + values[1]);
 				} else if(so.getCMD()==Sendobject.CMD_SET_DIRECTION){
 					int direction = (int) so.getData();

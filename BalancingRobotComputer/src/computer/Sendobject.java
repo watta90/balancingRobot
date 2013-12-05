@@ -5,14 +5,14 @@ public class Sendobject {
 	public static int CMD_SET_DIRECTION = 2;
 	public int cmd;
 	public int direction;
-	public float[] params;
+	public double[] params;
 
 	public Sendobject(int cmd, int dir) {
 		this.cmd = cmd;
 		this.direction = dir;
 	}
 
-	public Sendobject(int cmd, float[] par) {
+	public Sendobject(int cmd, double[] par) {
 		this.cmd = cmd;
 		this.params = par;
 	}

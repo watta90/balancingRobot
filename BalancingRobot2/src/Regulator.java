@@ -19,21 +19,20 @@ public class Regulator extends Thread{
 	
 	public final static int h = 10;
 	
-	private float angle = 0;
-	private float gyroValue;
-	private float x_acc_rate = 0;
+	private double angle = 0;
+	private double gyroValue;
+	private double x_acc_rate = 0;
 	
 	private double oldU = 0;
 	private double oldSpeed = 0;
 	
 	private int x_acc_offset=0;
-	private float x_acc_scale=(float) 90/200;//90/220
+	private double x_acc_scale= 90/200;//90/220
 	private int gyro_offset=0; //Not needed
-	private float gyro_scale=(float) 1;
+	private double gyro_scale= 1;
 	
-	float T= (float) 0.001;
-	float z = 0;
-	//float oldY = 0;
+	double T= 0.001;
+	double z = 0;
 	int graphTime;
 	long t;
 	
@@ -52,40 +51,30 @@ public class Regulator extends Thread{
 		
 	}
 	
-	
-//	private int lowPass(int y){
-//		try {
-//			float s = 2/h * ((y*y)-(oldY*oldY))/(y + oldY);
-//			return (int) (y*(1/((s*T) + 1)));
-//		} catch(Exception e){
-//			return 0;
-//		}
-//	}
-	
 	public void run(){
 		calibrate();
 		t = System.currentTimeMillis();  
 		while(!interrupted()){
 			gyroValue = gyroSensor.getAngularVelocity(); 
 			x_acc_rate = accelerometer.getXAccel();
-			float x_accel=(float) (x_acc_rate-x_acc_offset)*x_acc_scale; //output is angle in radians.
-			float gyro=(float)(gyroValue-gyro_offset)*gyro_scale; //output is angularvel. in radians.
-			angle = (float) ((float) (0.98)*(angle+gyro*0.01)+(0.02)*(x_accel));
+			double x_accel= (x_acc_rate-x_acc_offset)*x_acc_scale; //output is angle in radians.
+			double gyro=(gyroValue-gyro_offset)*gyro_scale; //output is angularvel. in radians.
+			angle = ( (0.98)*(angle+gyro*0.01)+(0.02)*(x_accel));
 			int sign = 1;
 			if(oldU<0){
 				sign = -1;
 			}
 			double speed = 0.98*oldSpeed + 0.2*m1.getPower();
-			float newRef = 0;
+			double newRef = 0;
 			/*if(speed>pid.getParameters().Ti){
 				//newRef = ((float)speed)*((float)pid.getParameters().K);
 				newRef = (float) (sign*pid.getParameters().K);
 			}*/
 			
 			
-			float[] sfValues = sf.calc(angle, newRef);
+			double[] sfValues = sf.calc(angle, newRef);
 			//double[] pidValues = pid.calculateOutput(angle, refGen.getRef(), gyro);
-			double u = (double)sfValues[0];
+			double u = sfValues[0];
 			
 			
 			if(u>100){
@@ -109,13 +98,13 @@ public class Regulator extends Thread{
 			float angle=res[1];
 			float gyroRate=res[2];*/
 
-			controllMotor((float)u);
+			controllMotor(u);
 			//controllMotor((float)pid.getParameters().N);
 			//float[] params = pd.getParams();
 			
 			printOnNXT(angle, gyro, m1.getPower());
 			
-			pid.updateState(u);
+			//pid.updateState(u);
 			
 			if(graphTime>20){
 				//blMon.sendData((int)angle, (int)refGen.getRef(),  (int)u);
@@ -155,9 +144,6 @@ public class Regulator extends Thread{
 	private void reset() {
 		Sound.beep();
 		controllMotor(0);
-		//angle = 0;
-		//gyroRate = 0;
-		//x_acc_rate = 0;
 		sf.reset();
 		pid.reset();
 		pid.setStateParams(PID.STATE_OLD);
@@ -169,25 +155,22 @@ public class Regulator extends Thread{
 		try {
 			sleep(5000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		t = System.currentTimeMillis();
 	}
 
 
-	private void  printOnNXT(float tempAngle, float x_acc_rate, double tempAG) {
+	private void  printOnNXT(double tempAngle, double x_acc_rate, double tempAG) {
 		LCD.clear();
 		LCD.drawString(""+tempAngle, 0, 0);
 		LCD.drawString(""+x_acc_rate, 0, 3);
-		
-		//LCD.drawInt((int)tempAG, 0, 6);
 		LCD.drawString(""+tempAG, 0, 6);
 		
 	}
 
 
-	private void controllMotor(float u) {
+	private void controllMotor(double u) {
 		int power = (int)Math.abs(u);
 		int offset = 3; //(int)(pid.getParameters()).Tr;
 		power = offset + power;
@@ -198,27 +181,11 @@ public class Regulator extends Thread{
 		m1.setPower(power);
 		m2.setPower(power);
 		if(u<0){
-			//m1.setPower(power);
-			//m2.setPower(0);
-			//m2.flt();
 			m1.forward();
-			m2.forward();
-			//m2.backward();
-			/*Motor.A.setSpeed(u);
-			Motor.C.setSpeed(u);
-			Motor.A.forward();
-			Motor.C.forward();*/
-			
+			m2.forward();			
 		} else {
-			//m1.forward();
 			m1.backward();
 			m2.backward();
-			//m1.setPower(0);
-			//m2.flt();
-			//m1.setPower(power);
-			
-					
-					
 		}
 		
 	}

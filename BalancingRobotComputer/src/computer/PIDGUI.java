@@ -167,10 +167,10 @@ public class PIDGUI {
 		paramsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Sendobject so = new Sendobject(Sendobject.CMD_SET_PARAMETERS,
-						new float[] { (float) params.Beta, (float) params.H,
-								(float) params.K, (float) params.N,
-								(float) params.Td, (float) params.Ti,
-								(float) params.Tr });
+						new double[] { params.Beta, params.H,
+								params.K, params.N,
+								params.Td, params.Ti,
+								params.Tr });
 				// blMon.newSendData(new double[]{l1Value, l2Value, 0});
 				blMon.newSendData(so);
 				paramsButton.setEnabled(false);

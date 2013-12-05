@@ -61,10 +61,10 @@ public class GUI {
 
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				float l1Value = (float) paramsl1.getValue();
-				float l2Value = (float) paramsl2.getValue();
+				double l1Value = paramsl1.getValue();
+				double l2Value = paramsl2.getValue();
 				Sendobject so = new Sendobject(
-						Sendobject.CMD_SET_PARAMETERS, new float[] {
+						Sendobject.CMD_SET_PARAMETERS, new double[] {
 								l1Value, l2Value });
 				// blMon.newSendData(new double[]{l1Value, l2Value, 0});
 				blMon.newSendData(so);

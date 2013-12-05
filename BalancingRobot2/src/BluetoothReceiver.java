@@ -32,13 +32,13 @@ public class BluetoothReceiver extends Thread {
 				switch (cmd) {
 				case 1:
 					PIDParameters par = new PIDParameters();
-					par.Beta = dataIn.readFloat();
-					par.H = dataIn.readFloat();
-					par.K = dataIn.readFloat();
-					par.N = dataIn.readFloat();
-					par.Td = dataIn.readFloat();
-					par.Ti = dataIn.readFloat();
-					par.Tr = dataIn.readFloat();
+					par.Beta = dataIn.readDouble();
+					par.H = dataIn.readDouble();
+					par.K = dataIn.readDouble();
+					par.N = dataIn.readDouble();
+					par.Td = dataIn.readDouble();
+					par.Ti = dataIn.readDouble();
+					par.Tr = dataIn.readDouble();
 					pid.setParameters(par);
 					
 					/*float[] values = new float[2];
@@ -46,7 +46,7 @@ public class BluetoothReceiver extends Thread {
 					values[1] = dataIn.readFloat();*/
 					//pd.setParameters(values);
 					pid.setParameters(par);
-					//sf.setParameter((float)par.K, (float)par.Ti, (float)par.Td);
+					//sf.setParameter(par.K, par.Ti, par.Td);
 					break;
 				case 2:
 					int direction = dataIn.readInt();
