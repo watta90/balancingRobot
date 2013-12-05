@@ -77,10 +77,10 @@ public class Regulator extends Thread{
 			}
 			double speed = 0.98*oldSpeed + 0.2*m1.getPower();
 			float newRef = 0;
-			if(speed>pid.getParameters().Ti){
+			/*if(speed>pid.getParameters().Ti){
 				//newRef = ((float)speed)*((float)pid.getParameters().K);
 				newRef = (float) (sign*pid.getParameters().K);
-			}
+			}*/
 			
 			
 			float[] sfValues = sf.calc(angle, newRef);
