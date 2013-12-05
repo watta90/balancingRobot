@@ -64,7 +64,7 @@ public class Regulator extends Thread{
 			if(oldU<0){
 				sign = -1;
 			}
-			double speed = 0.98*oldSpeed + 0.2*m1.getPower();
+			double speed = 0.98*oldSpeed + 0.02*m1.getPower();
 			double newRef = 0;
 			/*if(speed>pid.getParameters().Ti){
 				//newRef = ((float)speed)*((float)pid.getParameters().K);

@@ -10,6 +10,8 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		 ShutDown threadForShutDown = new ShutDown();
+		 threadForShutDown.start();
 		 NXTConnection connection = null;
 		 connection = Bluetooth.waitForConnection();
 		 LCD.drawChar('Y', 0,0);
@@ -29,13 +31,11 @@ public class Main {
 		
 		 //Sensor sensor = new Sensor(blMon, pd, refGen, sf);
 		 Regulator regul = new Regulator(blMon, pd, refGen, sf, pid);
-		 ShutDown threadForShutDown = new ShutDown();
+		 
 		 blSender.start();
 		 blReceiver.start();
 		 //sensor.start();
 		 regul.start();
-		 threadForShutDown.start();
-
 	}
 
 }
