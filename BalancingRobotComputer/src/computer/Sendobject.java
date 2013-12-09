@@ -29,4 +29,14 @@ public class Sendobject {
 	public int getCMD() {
 		return cmd;
 	}
+	
+	public Sendobject clone(){
+		Sendobject s;
+		if(cmd == CMD_SET_PARAMETERS){
+			s = new Sendobject(cmd, params);
+		} else {
+			s = new Sendobject(cmd, direction);
+		}
+		return s;
+	}
 }

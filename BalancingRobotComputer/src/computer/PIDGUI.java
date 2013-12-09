@@ -31,11 +31,11 @@ public class PIDGUI {
 
 		this.blMon = blMon2;
 		params = p;
-		p.K = 4;
-		p.Ti = 0;
-		p.Td = 0.2;// 0.085;
+		p.K =  16;//1150;//1500;
+		p.Ti = 0.09;//15.0;
+		p.Td = 0.04;//1;// 0.085;
 		p.N = 10;
-		p.Tr = 1;
+		p.Tr = 1;//70;//138;
 		p.Beta = 1;
 		p.H = 0.01;
 		MainFrame.showLoading();

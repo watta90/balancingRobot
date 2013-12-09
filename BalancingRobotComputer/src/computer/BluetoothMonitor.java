@@ -39,7 +39,7 @@ public class BluetoothMonitor {
 	}
 	
 	public synchronized void newSendData(Sendobject ds){
-		newSendData = ds;
+		newSendData = ds.clone();
 		isNewSend = true;
 		notifyAll();
 	}
