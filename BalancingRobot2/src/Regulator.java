@@ -27,7 +27,7 @@ public class Regulator extends Thread{
 	private double oldSpeed = 0;
 	
 	private int x_acc_offset=0;
-	private double x_acc_scale= 90/200;//90/220
+	private double x_acc_scale= (90/200);//90/220
 	private int gyro_offset=0; //Not needed
 	private double gyro_scale= 1;
 	
@@ -35,6 +35,7 @@ public class Regulator extends Thread{
 	double z = 0;
 	int graphTime;
 	long t;
+	long dt;
 	
 	public Regulator(BluetoothMonitor blMon, PD pd, ReferenceGenerator refGen, Statefeedback sf, PID pid){
 		this.blMon = blMon;
@@ -54,12 +55,18 @@ public class Regulator extends Thread{
 	public void run(){
 		calibrate();
 		t = System.currentTimeMillis();  
+		dt = System.currentTimeMillis();
 		while(!interrupted()){
 			gyroValue = gyroSensor.getAngularVelocity(); 
 			x_acc_rate = accelerometer.getXAccel();
-			double x_accel= (x_acc_rate-x_acc_offset)*x_acc_scale; //output is angle in radians.
-			double gyro=(gyroValue-gyro_offset)*gyro_scale; //output is angularvel. in radians.
-			angle = ( (0.98)*(angle+gyro*0.01)+(0.02)*(x_accel));
+			double z_acc_rate = accelerometer.getZAccel();
+			double theta = Math.atan2(x_acc_rate, z_acc_rate)*180/Math.PI;
+			
+			double x_accel= (x_acc_rate-x_acc_offset)*x_acc_scale; //output is angle in degrees.
+			double gyro=(gyroValue-gyro_offset)*gyro_scale; //output is angularvel. in degrees.
+			dt = System.currentTimeMillis() - dt;
+			angle = 0.98*(angle + gyro*0.01) + (0.02*theta);
+			dt = System.currentTimeMillis();
 			int sign = 1;
 			if(oldU<0){
 				sign = -1;
@@ -72,9 +79,9 @@ public class Regulator extends Thread{
 			}*/
 			
 			
-			double[] sfValues = sf.calc(angle, newRef);
-			//double[] pidValues = pid.calculateOutput(angle, refGen.getRef(), gyro);
-			double u = sfValues[0];
+			//double[] sfValues = sf.calc(angle, newRef);
+			double[] pidValues = pid.calculateOutput(angle, refGen.getRef(), gyro);
+			double u = pidValues[0];
 			
 			
 			if(u>100){
@@ -82,16 +89,17 @@ public class Regulator extends Thread{
 			} else if(u<-100){
 				u=-100;
 			}
-			if(sfValues[1]>100){
-				sfValues[1]=100;
-			} else if(sfValues[1]<-100){
-				sfValues[1]=-100;
+			if(pidValues[1]>100){
+				pidValues[1]=100;
+			} else if(pidValues[1]<-100){
+				pidValues[1]=-100;
 			}
-			if(sfValues[2]>100){
-				sfValues[2]=100;
-			} else if(sfValues[2]<-100){
-				sfValues[2]=-100;
+			if(pidValues[2]>100){
+				pidValues[2]=100;
+			} else if(pidValues[2]<-100){
+				pidValues[2]=-100;
 			}
+			
 			
 			/*float []res = pd.calculateOutput();
 			float u=res[0];
@@ -102,13 +110,13 @@ public class Regulator extends Thread{
 			//controllMotor((float)pid.getParameters().N);
 			//float[] params = pd.getParams();
 			
-			printOnNXT(angle, gyro, m1.getPower());
+			//printOnNXT(angle, gyro, u);
 			
-			//pid.updateState(u);
+			pid.updateState(u);
 			
 			if(graphTime>20){
 				//blMon.sendData((int)angle, (int)refGen.getRef(),  (int)u);
-				blMon.sendData((int)sfValues[1], (int)sfValues[2], (int)u);
+				blMon.sendData((int)pidValues[1], (int)pidValues[2], (int)u);
 				graphTime = 0;
 			}
 			graphTime++;
@@ -174,9 +182,9 @@ public class Regulator extends Thread{
 		int power = (int)Math.abs(u);
 		int offset = 3; //(int)(pid.getParameters()).Tr;
 		power = offset + power;
-		if((oldU<0 && u>0) || oldU>0 && u<0){
+		/*if((oldU<0 && u>0) || oldU>0 && u<0){
 			power += (int)pid.getParameters().Beta;
-		}
+		}*/
 		
 		m1.setPower(power);
 		m2.setPower(power);

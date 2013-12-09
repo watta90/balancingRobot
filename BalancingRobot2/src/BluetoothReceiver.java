@@ -45,8 +45,8 @@ public class BluetoothReceiver extends Thread {
 					values[0] = dataIn.readFloat();
 					values[1] = dataIn.readFloat();*/
 					//pd.setParameters(values);
-					pid.setParameters(par);
-					//sf.setParameter(par.K, par.Ti, par.Td);
+					//pid.setParameters(par);
+					sf.setParameter(par.K, par.Ti, par.Td, par.Tr);
 					break;
 				case 2:
 					int direction = dataIn.readInt();

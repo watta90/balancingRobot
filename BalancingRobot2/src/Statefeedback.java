@@ -12,11 +12,14 @@ public class Statefeedback {
 	double b1, b2;
 	double c1, c2;
 	double u;
-	double k= 0.12;
+	double k= 1;
+	double I;
+	double Ti;
 
 	public Statefeedback() {
-		this.l1 = 9500;//362.1856; //102; //102.7913; // 5.0319;102
-		this.l2 = 2;//3.1528; //20;// 2.3452; //0.4837;
+		this.l1 = 1000;//362.1856; //102; //102.7913; // 5.0319;102
+		this.l2 = 7;//3.1528; //20;// 2.3452; //0.4837;
+		this.Ti = 70;
 		this.x1 = 0;
 		this.x01 = 0;
 		this.x2 = 0; // h=0.05
@@ -30,21 +33,33 @@ public class Statefeedback {
 		c1 = 1;
 		c2 = 0;
 		u = 0;
+		I = 0;
 	}
 
 	public synchronized double [] calc(double angle, double newRef) {
 		//x1 = vinkel;//(float) ((vinkel/180)*Math.PI);
 		//x2 = vinkelhastighet;//(float) ((vinkelhastighet/180)*Math.PI);
-		angle = angle* 0.0175;
+		angle = angle*0.0175;
 		x2 = (x1-angle)/0.01;
 		x1 = angle;
 		x01 = newRef;
 		double tempx1 = l1 * (x1-x01)*k;
 		double tempx2 =  l2 * x2 * k;
 		//u = -(l1 * (x1-x01) + l2 * x2)*k;
-		u = -(tempx1 + tempx2);
 		
-		double []res={u,tempx1,tempx2};
+		
+		I = (I + (angle - newRef));
+		double tempI = I*Ti;
+		if(tempI>10){
+			I = 10/Ti;
+			tempI = 10;
+		} else if(tempI<-10){
+			I = -10/Ti;
+			tempI = -10;
+		}
+		u = -(tempx1 + tempx2 + tempI);
+		
+		double []res={u,tempx1,tempx2, tempI};
 		return res;
 	}
 
@@ -56,10 +71,11 @@ public class Statefeedback {
 		this.x1=angle;
 		this.x2=vel;
 	}
-	public synchronized void setParameter(double l1, double l2, double k) {
+	public synchronized void setParameter(double l1, double l2, double k, double ti) {
 		this.l1 = l1;
 		this.l2 = l2;
 		this.k = k;
+		this.Ti = ti;
 		stateParams = STATE_NEW;
 		notifyAll();
 	}

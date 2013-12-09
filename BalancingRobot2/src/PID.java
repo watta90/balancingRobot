@@ -23,10 +23,10 @@ public class PID {
 		p.Beta = 1.0;
 		p.H = 0.01;
 		p.integratorOn = true;
-		p.K = 4;
-		p.Ti = 0;
-		p.Tr = 0;
-		p.Td = 0.2;
+		p.K = 16;
+		p.Ti = 0.09;
+		p.Tr = 1;
+		p.Td = 0.04;
 		p.N = 10;
 		setParameters(p);
 
@@ -41,6 +41,7 @@ public class PID {
 	}
 
 	public synchronized double[] calculateOutput(double y, double yref, double gyro) {
+		p.integratorOn=true;
 		yk = y;
 		D = ((p.Td) / (p.Td + p.N * p.H)) * D
 				- ((p.K * p.Td * p.N) / (p.Td + p.N * p.H)) * (yk - y_k);
